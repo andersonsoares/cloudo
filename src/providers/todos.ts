@@ -11,11 +11,11 @@ import PouchDB from 'pouchdb';
 */
 @Injectable()
 export class Todos {
- 
+
   data: any;
   db: any;
   remote: any;
- 
+
   constructor(public http: Http) {
  
     this.db = new PouchDB('cloudo');
@@ -32,8 +32,7 @@ export class Todos {
       .on('change', function (info) {
         // handle change
         console.log('[PouchDB] change: ' + info)
-      }
-      ).on('paused', function (err) {
+      }).on('paused', function (err) {
         // replication paused (e.g. replication up to date, user went offline)
         console.log('[PouchDB] Paused: ' + err)
       }).on('active', function () {
@@ -49,93 +48,81 @@ export class Todos {
         // handle error
         console.log('[PouchDB] Erro: ' + err)
       });
- 
   }
  
   getTodos() {
  
-  if (this.data) {
-    return Promise.resolve(this.data);
+    if (this.data) {
+      return Promise.resolve(this.data);
+    }
+    return new Promise(resolve => {
+      this.db.allDocs({
+        include_docs: true
+      }).then((result) => {
+        this.data = [];
+        let docs = result.rows.map((row) => {
+          this.data.push(row.doc);
+        });
+        // Resolve a Promise
+        resolve(this.data);
+        this.db.changes({
+          live: true, 
+          since: 'now', 
+          include_docs: true
+        }).on('change', (change) => {
+          this.handleChange(change);
+        });
+      }).catch((error) => {
+        console.log(error);
+      });
+    });
   }
  
-  return new Promise(resolve => {
+  createTodo(todo) {
+
+    this.db.post(todo);
+  }
  
-    this.db.allDocs({
+  updateTodo(todo) {
+
+    this.db.put(todo).catch((err) => {
+      console.log(err);
+    });
+  }
  
-      include_docs: true
- 
-    }).then((result) => {
- 
-      this.data = [];
- 
-      let docs = result.rows.map((row) => {
-        this.data.push(row.doc);
-      });
- 
-      resolve(this.data);
- 
-      this.db.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => {
-        this.handleChange(change);
-      });
- 
-    }).catch((error) => {
- 
-      console.log(error);
- 
-    }); 
- 
-  });
- 
-}
- 
-  createTodo(todo){
-  this.db.post(todo);
-}
- 
-updateTodo(todo){
-  this.db.put(todo).catch((err) => {
-    console.log(err);
-  });
-}
- 
-deleteTodo(todo){
-  this.db.remove(todo).catch((err) => {
-    console.log(err);
-  });
-}
+  deleteTodo(todo) {
+
+    this.db.remove(todo).catch((err) => {
+      console.log(err);
+    });
+  }
  
   handleChange(change){
+
+    let changedDoc = null;
+    let changedIndex = null;
+  
+    this.data.forEach((doc, index) => {
+  
+      if(doc._id === change.id){
+        changedDoc = doc;
+        changedIndex = index;
+      }
+  
+    });
  
-  let changedDoc = null;
-  let changedIndex = null;
+    //A document was deleted
+    if(change.deleted){
+      this.data.splice(changedIndex, 1);
+    } else {
  
-  this.data.forEach((doc, index) => {
- 
-    if(doc._id === change.id){
-      changedDoc = doc;
-      changedIndex = index;
+      //A document was updated
+      if(changedDoc){
+        this.data[changedIndex] = change.doc;
+      } else { //A document was added
+        this.data.push(change.doc); 
+      }
     }
- 
-  });
- 
-  //A document was deleted
-  if(change.deleted){
-    this.data.splice(changedIndex, 1);
-  } 
-  else {
- 
-    //A document was updated
-    if(changedDoc){
-      this.data[changedIndex] = change.doc;
-    } 
- 
-    //A document was added
-    else {
-      this.data.push(change.doc); 
-    }
- 
   }
- 
-}
  
 }
