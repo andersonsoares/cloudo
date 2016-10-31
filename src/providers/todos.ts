@@ -20,7 +20,7 @@ export class Todos {
  
     this.db = new PouchDB('cloudo');
  
-    this.remote = 'http://localhost:5984/cloudo';
+    this.remote = 'http://192.168.1.102:5984/cloudo';
  
     let options = {
       live: true,
@@ -28,7 +28,27 @@ export class Todos {
       continuous: true
     };
  
-    this.db.sync(this.remote, options);
+    this.db.sync(this.remote, options)
+      .on('change', function (info) {
+        // handle change
+        console.log('[PouchDB] change: ' + info)
+      }
+      ).on('paused', function (err) {
+        // replication paused (e.g. replication up to date, user went offline)
+        console.log('[PouchDB] Paused: ' + err)
+      }).on('active', function () {
+        // replicate resumed (e.g. new changes replicating, user went back online)
+        console.log('[PouchDB] Active')
+      }).on('denied', function (err) {
+        // a document failed to replicate (e.g. due to permissions)
+        console.log('[PouchDB] Denied: ' + err)
+      }).on('complete', function (info) {
+        // handle complete
+        console.log('[PouchDB] Complete: ' + info)
+      }).on('error', function (err) {
+        // handle error
+        console.log('[PouchDB] Erro: ' + err)
+      });
  
   }
  

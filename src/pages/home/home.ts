@@ -19,7 +19,8 @@ export class HomePage {
 
   ionViewDidLoad(){
     this.todoService.getTodos().then((data) => {
-        this.todos = data;
+       this.todos = data;
+       console.log('Data: ' + data)
     });
   }
 
