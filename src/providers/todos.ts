@@ -20,7 +20,16 @@ export class Todos {
  
     this.db = new PouchDB('cloudo');
  
-    this.remote = 'http://192.168.1.102:5984/cloudo';
+    // Para testar a aplicacao rodando no celular eh preciso definir
+    // o ip da maquina onde ta rodando o couchdb
+    // por motivo de seguranca, o couchdb já vem preconfigurado
+    // para não ser acessível fora da rede local(localhost).
+    // para fazer ele aceitar conexoes externas eh preciso abrir
+    // o arquivo de configuracao dele(no meu caso, local.ini)
+    // no setor: [httpd], na configuracao: bind_address
+    // esta 127.0.0.1, trocar para 0.0.0.0
+    // this.remote = 'http://192.168.1.102:5984/cloudo';
+    this.remote = 'http://localhost:5984/cloudo';
  
     let options = {
       live: true,
