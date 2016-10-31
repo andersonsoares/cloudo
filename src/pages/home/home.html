@@ -1,0 +1,36 @@
+<ion-header>
+    <ion-navbar secondary no-border-bottom>
+      <ion-title>
+        ClouDO
+      </ion-title>
+      <ion-buttons end>
+        <button ionic-button (click)="createTodo()"><ion-icon name="cloud-upload"></ion-icon></button>
+      </ion-buttons>
+    </ion-navbar>
+</ion-header>
+ 
+<ion-content class="home">
+ 
+    <ion-list no-lines>
+ 
+      <ion-item-sliding *ngFor="let todo of todos">
+ 
+        <ion-item>
+ 
+            {{todo.title}}
+ 
+        </ion-item>
+ 
+        <ion-item-options>
+          <button ionic-button color="light" (click)="updateTodo(todo)">
+            <ion-icon name="create"></ion-icon>
+          </button>
+          <button ionic-button color="primary" (click)="deleteTodo(todo)">
+            <ion-icon name="checkmark"></ion-icon>
+          </button>
+        </ion-item-options>
+      </ion-item-sliding>
+ 
+    </ion-list>   
+ 
+</ion-content>
