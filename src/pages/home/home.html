@@ -10,17 +10,11 @@
 </ion-header>
  
 <ion-content class="home">
- 
     <ion-list no-lines>
- 
       <ion-item-sliding *ngFor="let todo of todos">
- 
         <ion-item>
- 
             {{todo.title}}
- 
         </ion-item>
- 
         <ion-item-options>
           <button ion-button color="light" (click)="updateTodo(todo)">
             <ion-icon name="create"></ion-icon>
@@ -30,7 +24,5 @@
           </button>
         </ion-item-options>
       </ion-item-sliding>
- 
-    </ion-list>   
- 
+    </ion-list>
 </ion-content>
